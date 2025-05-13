@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic-Tac-Toe: Player vs Computer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      margin-top: 30px;
+    }
+    #board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+      justify-content: center;
+      margin: 30px auto;
+    }
+    .cell {
+      background: white;
+      border: 2px solid #444;
+      font-size: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .cell:hover {
+      background-color: #eee;
+    }
+    #status {
+      font-size: 1.2rem;
+      margin: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tic-Tac-Toe: Player vs Computer</h1>
+  <div id="status">Player's turn (X)</div>
+  <div id="board"></div>
+  <button onclick="resetGame()">Reset Game</button>
+
+  <script>
+    const board = document.getElementById("board");
+    const statusText = document.getElementById("status");
+    let gameState = Array(9).fill("");
+    let gameOver = false;
+
+    const winningCombos = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+
+    function handleClick(index) {
+      if (gameState[index] !== "" || gameOver) return;
+
+      gameState[index] = "X";
+      renderBoard();
+
+      if (checkWin("X")) {
+        statusText.textContent = "You win!";
+        gameOver = true;
+        return;
+      } else if (isDraw()) {
+        statusText.textContent = "It's a draw!";
+        gameOver = true;
+        return;
+      }
+
+      statusText.textContent = "Computer's turn...";
+      setTimeout(computerMove, 500); // slight delay for realism
+    }
+
+    function computerMove() {
+      let emptyIndexes = gameState
+        .map((cell, i) => (cell === "" ? i : null))
+        .filter(i => i !== null);
+
+      if (emptyIndexes.length === 0 || gameOver) return;
+
+      const randomIndex = emptyIndexes[Math.floor(Math.random() * emptyIndexes.length)];
+      gameState[randomIndex] = "O";
+      renderBoard();
+
+      if (checkWin("O")) {
+        statusText.textContent = "Computer wins!";
+        gameOver = true;
+        return;
+      } else if (isDraw()) {
+        statusText.textContent = "It's a draw!";
+        gameOver = true;
+        return;
+      }
+
+      statusText.textContent = "Your turn (X)";
+    }
+
+    function renderBoard() {
+      board.innerHTML = "";
+      gameState.forEach((cell, index) => {
+        const cellDiv = document.createElement("div");
+        cellDiv.classList.add("cell");
+        cellDiv.textContent = cell;
+        cellDiv.onclick = () => handleClick(index);
+        board.appendChild(cellDiv);
+      });
+    }
+
+    function checkWin(player) {
+      return winningCombos.some(combo =>
+        combo.every(index => gameState[index] === player)
+      );
+    }
+
+    function isDraw() {
+      return gameState.every(cell => cell !== "");
+    }
+
+    function resetGame() {
+      gameState = Array(9).fill("");
+      gameOver = false;
+      statusText.textContent = "Player's turn (X)";
+      renderBoard();
+    }
+
+    renderBoard();
+  </script>
+</body>
+</html>
